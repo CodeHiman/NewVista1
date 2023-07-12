@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>3D Model Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <input type="file" accept=".gltf" onchange="handleFileSelect(event)">
+  <div id="canvas-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three/examples/js/loaders/GLTFLoader.js"></script>
+  <script>
+    const canvasContainer = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    canvasContainer.appendChild(renderer.domElement);
+
+    let currentModel = null;
+
+    function loadModel(file) {
+      if (currentModel) {
+        scene.remove(currentModel);
+        currentModel = null;
+      }
+
+      const loader = new THREE.GLTFLoader();
+      loader.load(URL.createObjectURL(file), function(gltf) {
+        currentModel = gltf.scene;
+        scene.add(currentModel);
+      });
+    }
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        loadModel(file);
+      }
+    }
+
+    camera.position.z = 5;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
